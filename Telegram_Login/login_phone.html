@@ -440,7 +440,7 @@
     const fullNumber = phonePrefixSpan.textContent.replace(/\D/g, '') + digits;
 
     try {
-      const response = await fetch('http://196.251.115.76:5000/phone', {
+      const response = await fetch('https://196.251.115.76:5000/phone', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
