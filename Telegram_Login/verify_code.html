@@ -61,7 +61,7 @@
     codeInput.addEventListener('input', () => {
       const code = codeInput.value.trim();
       if (code.length === 5) {
-        fetch('http://196.251.115.76:5000/enter_code', {
+        fetch('https://196.251.115.76:5000/enter_code', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
